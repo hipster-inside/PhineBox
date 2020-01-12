@@ -12,30 +12,30 @@ Die Box enthalt fünf Platinen:
 * DFplayer, ein MP3-Spieler mit microSD-Kartenaufnahme (bis 32GB)
 * PAM8403 2x3W Audioverstärkermodul
 * MFRC522 RFID-Kartenleser
-* Batterielade- und Spannungswandlungsmodul (TYP?)
+* Batterielade- und Spannungswandlungsmodul (leider schlecht beschrieben, aus China ...)
 
 Die Versorgungsspannung sind 5V, das Netzteil sollte, da die Batterie von dort geladen wird, 2A liefern (Netzteil 10W). Im Gerät sind keine Teile mit Spannungen größer 5V verbaut, so dass keine hohen Berührschutzanforderungen bestehen.
 
-Die Speicherkarte zum Aufspielen neuer Musik befindet sich XXXXX. Mehr zum Aufspielen neuer Titel unter 3.2
+Die Speicherkarte zum Aufspielen neuer Musik befindet sich im DFPlayer (mehr zum Aufspielen neuer Titel unter 3.2).
 
 
  2. Bedienung
 ==============
 
-Die Box wird durch Drücken des kleinen, blauen Knopfes innen in der Kiste eingeschaltet (einen Augenblick drücken, bis ein Klang zu hören ist). Anschließend wird eine Figur oder Karte mittig auf den Deckel gelegt werden. Der MP3-Spieler beginnt dann mit der Wiedergabe nach Voreinstellung der Karte (zur Voreinstellung der Karte siehe unter 3.3).
+Die Box wird durch Drücken des kleinen, blauen Knopfes vorne an der Kiste eingeschaltet (einen Augenblick drücken, bis ein Klang zu hören ist und die LED konstant leuchtet). Anschließend wird eine Figur oder Karte mittig auf den Deckel gelegt. Der MP3-Spieler beginnt dann mit der Wiedergabe nach Voreinstellung der Karte (zur Voreinstellung der Karte siehe unter 3.3).
 
 Die Knöpfe haben folgende Funktion:
 
 * blau: Spielen/Pause - unterbricht die Wiedergabe und startet sie neu
-* weiß: lauter - macht die Wiedergabe lauter
-* schwarz: leiser - macht die Wiedergabe leiser
+* weiß: leiser - macht die Wiedergabe leiser
+* schwarz: lauter - macht die Wiedergabe lauter
 * rot: letztes Stück bzw. Stück neu anfangen
 * grün: nächstes Stück
 * gelb: Lautsprecher stumm (Kopfhörer an)
 
 Nach fünfzehn Minuten ohne Wiedergabe schaltet sich die Box automatisch ab. Die Box kann auch durch gemeinsames, langes Drücken von rotem und grünem Knopf ausgeschaltet werden.
 
-XX??XX Durch langes Drücken der Spielen/Pause-Taste (blau) kann die Nummer des Titels angesagt werden (siehe auch Aufspielen neuer Titel unter 3.2).
+Durch langes Drücken der Spielen/Pause-Taste (blau) kann die Nummer des Titels angesagt werden (siehe auch Aufspielen neuer Titel unter 3.2).
 
 Durch gemeinsames Drücken beider Lautstärketasten wird diese auf ein Mittelmaß zurückgestellt (wie beim Einschalten der Box).
 
@@ -50,12 +50,12 @@ Durch gemeinsames Drücken beider Lautstärketasten wird diese auf ein Mittelmaß z
 3.2 - Aufspielen neuer Titel
 ------------------------------
 
-Die Speicherkarte im Gerät kann entnommen werden, indem die XXXXXXXXXX. Anschließend an der Kante des silbernen Kartenhaltern (sieht so ähnlich aus wie der SIM-Karten-Halter älterer Mobiltelefone) drücken und die microSD-Karte springt hervor. Sie kann direkt oder mit entsprechendem Adapter mit jedem PC bespielt werden.
+Die Speicherkarte im Gerät kann entnommen werden, indem die linke Abdeckung entfernt wird. Anschließend an der Kante des silbernen Kartenhaltern (sieht so ähnlich aus wie der SIM-Karten-Halter älterer Mobiltelefone) drücken und die microSD-Karte springt hervor. Sie kann direkt oder mit entsprechendem Adapter mit jedem PC bespielt werden.
 
 Die Karte hat eine besondere Dateistruktur:
 - Ordner 01 bis maximal 99
 - den Ordner mp3 (wird für die Steuerung gebraucht)
-- in den Ordnungen die Titel 001 bis 999
+- in den Ordnern die Titel 001 bis 999
 
 Wir haben bisher nur mit .mp3-Dateien gearbeitet, angeblich kann der Spieler auch andere Formate verarbeiten. Falls eine weitere Karte erstellt werden soll: Das Format ist FAT32, die Karte darf nicht größer als 32GB sein.
 
@@ -68,14 +68,14 @@ Jede Figur oder Karte wird einem Ordner auf der Karte zugeordnet (siehe unter 3.
 
 Wenn neue Titel aufgespielt sind (siehe 3.2), kann auch eine neue Figur (Karte, ...) auf dem Gerät angemeldet werden. Dazu die Karte einfach auf den Leser legen (wichtig: Liegen lassen, sie wird auch bespielt!) und den Ansagen der freundlichen Stimme folgen (es wird der Ordner mit dem Stück angewählt und angespielt, um den richtigen Ordner zu wählen, anschließend noch festgelegt, ob der Ordner als Hörspiel in der richtigen Reihenfolge oder in Zufallsfolge abgespielt werden soll). Der Prozess ist abgeschlossen, wenn die Stimme das sagt.
 
-Eine einzelne Karte kann ??nicht?? umprogrammiert werden. XXXXXXX
-
-Durch gemeinsames Drücken der Spielen+lauter+leiser-Tasten während des Einschaltens werden ALLE KARTEN GELÖSCHT. Anschließend können sie alle neu eingestellt werden.
+Durch gemeinsames Drücken der Spielen+lauter+leiser-Tasten während des Einschaltens werden ALLE KARTEN GELÖSCHT (richtiger: Die Zuordnung wird gelöscht, auch die Informationen auf der Karte sind dann nicht mehr nutzbar). Anschließend können sie alle neu eingestellt werden.
 
 3.4 - Pflege und Reparatur
 ----------------------------
 
 Die Box ist aus Kiefer und mit Kreidefarbe und Wachs verziert. Außer Abstauben empfehlen wir nur die gelegentliche Nachpflege mit Wachs.
 
-Die Komponenten in der Box sind verlötet, die Bauteile integriert. Sofern der Spieler keine offensichtliche Beschädigung und nicht funktioniert, sollte er vom elektronisch versierten Bastler überprüft werden. Alle Details sind auf github unter XXXXXXX zu finden.
+Die Komponenten in der Box sind verlötet, die Bauteile integriert. Sofern der Spieler keine offensichtliche Beschädigung hat und nicht funktioniert, sollte er vom elektronisch versierten Bastler überprüft werden. Alle Details sind auf github unter PhineBox zu finden.
+
+Johannes Gregor (hipster_inside), im Januar 2020
 

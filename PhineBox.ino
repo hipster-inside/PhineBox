@@ -1,6 +1,11 @@
 /*
  * PhineBox 2019  
  *  
+ * Known issues V 0.4:
+ * 1) Mute-button causes box to shut off sometimes.
+ * 2) USB-connection straight to MP3 player (to avoid changing cards when uploading new content) 
+ *    has not been figured out yet.
+ * 
  * This project is based on the Tonuino project, downloaded in September 2019
  * 
  * To make it easier on our kids to use, we added the following:
@@ -8,23 +13,30 @@
  * (2) One indicator LED to show the device is on and idle (fading lights) or playing (light on)
  * (3) Automatic (timed) switch-off and a start-button to turn it on (it is battery-powered/backed)
  * 
- * The MP3-player with a PAM8403 amplifier board is giving me a hard time - changing power supplies has not changed the
- * horrible noises coming from it, and playing with capacitors (low-pass) or resistors (a load to the output otherwise 
- * fine for straight-up headphones - which are working great btw - ) has not helped either
+ * The MP3-player with a PAM8403 amplifier board was giving me a hard time on the breadboard, and remains  
+ * very sensitive to electrical interference.  On a breadboard, there were horrible noises coming from it, 
+ * and playing with capacitors (low-pass) or resistors (a load to the output otherwise fine for 
+ * straight-up headphones - which are working great btw - ) had not helped either. The fix: Keep everything
+ * as separate as you can.  When redoing the layout on breadboard, keeping all lines from and to the card reader
+ * and data connection from/to MP3-player separate and away from the button leads, reduced the issue severely.
+ * In the final box, power supply, switches and arduino are in one speaker, the MP3-player and amplifier in the 
+ * other. Aside from a little background noise when on (it is a toy project after all), that solved all odd noises.
+ * Important also to limit the volume, since the output of the MP3-player otherwise overloads the amp which
+ * kills the entire setup.  Fortunately, nothing damaged when I tried...
  * 
  * My attempt of cabling in USB-interface to the DFplayer failed. I assume that some high frequency issues caused 
  * the connection to not be made, for the computer just never responded to anything attached to D+/D- wires within 
  * the cable while noticing the USB-plug to go in (by an audible bing). Suggestions are very welcome, for now taking
  * the card out when content is added will need to do. According to some sources, the DFplayer works like any USB-drive
- * once the connectors are made to a USB port.
+ * once the connection is made to a USB port.
  * 
- * --- Aufgaben: 
- * 1. Lautstärkebegrenzung im Array von Kopfhörer und Lautsprechern abhängig machen
- * 2. Softes Umschalten (Lautstärke leise, äquivalente Lautstärke im Zielausgabegerät?
- * 3. Googlen: Probleme Anschaltung PAM8403 mit DFplayer ...
- * 5. Info: GND zweimal vom PAM8403 abziehen schaltet diesen auch ab.
+ * Lastly, with a LiIon 18650 battery and a charge/discharge controller, the box can be charged with a 5V 2A power supply
+ * and run off it or run independently.  I do not have a running time yet, but we are talking many hours.  I also added
+ * two relay for automated power-off (it pulls when turned on and releases after time of no-use or pushing back and forward
+ * (red and green) simultaneously) and the mute function, cutting 5V to the PAM8403 module.  During testing that caused  
+ * the box to shut down sometimes, which is also an unresolved known issue.
  * 
- * V 0.3 - 10Nov2019 - h_i
+ * V 0.4 - 15Dec2019 - h_i
  */
 
 #include <DFMiniMp3.h>
@@ -224,15 +236,14 @@ MFRC522::StatusCode status;
 */
 
 #define RESET_VOLUME 10     // Lautstärke darauf zurücksetzen bei Start und Umschalten
-#define MAXIMUM_VOLUME 30   // Lautstärkebegrenzung, System startet mit RESET_VOLUME (maximal 30 im System)
-#define MIMIMUM_VOLUME 5    // untere Lautstärkebegrenzung, so dass ein laufendes Stück niemals "weg" ist
+#define MAXIMUM_VOLUME 22   // Lautstärkebegrenzung, System startet mit RESET_VOLUME (maximal 30 im System)
+#define MIMIMUM_VOLUME 1    // untere Lautstärkebegrenzung, so dass ein laufendes Stück niemals "weg" ist
 
 #define LONG_PRESS 600
 
 Button pauseButton(buttonPause);
 Button upButton(buttonUp);
 Button downButton(buttonDown);
-// --- Hier neue Einträge, drei Zeilen ---
 Button nextButton(buttonNext);
 Button lastButton(buttonLast);
 ToggleButton muteButton(buttonMute);
@@ -256,6 +267,8 @@ void setup() {
   // Relais zum Eingeschaltet-lassen initialisieren und anziehen
   pinMode(SystemOn, OUTPUT);
   digitalWrite(SystemOn, LOW);
+  pinMode(IndicatorLED, OUTPUT);
+  digitalWrite(IndicatorLED, HIGH);
 
   // Relais für Stummschaltung Lautsprecher initialisieren, aber nicht anziehen
   pinMode(MuteRelay, OUTPUT);
@@ -320,6 +333,7 @@ void loop() {
 
     if(isPlaying()) {      
       LastUsed = millis();
+      digitalWrite(IndicatorLED, HIGH);
       if (SystemOffTimerStarted) {
         SystemOffTimerStarted = false;
         Serial.println(F("System-Abschalttimer beendet"));
@@ -329,13 +343,21 @@ void loop() {
       SystemOffTimerStarted = true;
       Serial.println(F("System-Abschalttimer gestartet"));
     }
+    else{
+      if ((millis()%4000) < 400) {
+        digitalWrite(IndicatorLED, LOW); 
+      }
+      else {
+        digitalWrite(IndicatorLED, HIGH);
+      }
+    }
 
     if (millis() > LastUsed + TimeOut) {
       Serial.println(F("System abgeschaltet durch TimeOut"));
       digitalWrite(SystemOn, HIGH);       
     }
 
-    // Spiel/Pause-Knopf (Spiel, Pause, ???bei langem Druck Ansage der Titelnummer --- NOCHMAL ANALYSIEREN
+    // Spiel/Pause-Knopf (Spiel, Pause, bei langem Druck Ansage der Titelnummer)
     if (pauseButton.wasReleased()) {
       if (ignorePauseButton == false) {
         if (isPlaying()) {
@@ -353,7 +375,8 @@ void loop() {
                ignorePauseButton == false) {
       if (isPlaying()) {
         mp3.playAdvertisement(currentTrack);
-        Serial.println(F("... ist ins isPlaying() reingelaufen ... keine Ahnung warum ..."));
+        Serial.print(F("Ansage des aktuellen Titels - "));
+        Serial.println(currentTrack);
       }
       else {
         knownCard = false;
@@ -366,7 +389,7 @@ void loop() {
       ignorePauseButton = true;
     }
 
-    // Lauter- und Leiseknöpfe (lauter, leiser, gemeinsam = mittlere Lautstärke)
+    // Lauter- und Leiseknöpfe (lauter, leiser, gemeinsam = niedrige mittlere Lautstärke)
     if (upButton.pressedFor(LONG_PRESS) && downButton.pressedFor(LONG_PRESS)) {
       mp3.setVolume(RESET_VOLUME);
       Serial.println(F("Lautstärke zurückgesetzt"));
@@ -386,8 +409,9 @@ void loop() {
     } 
     else if (downButton.pressedFor(LONG_PRESS) || downButton.wasReleased()) {
       currentVolume = mp3.getVolume();
-      if (currentVolume == 1) {
-        Serial.print(F("Leiser geht es nicht, ist schon "));        
+      if (currentVolume <= MIMIMUM_VOLUME) {
+        Serial.print(F("Leiser geht es nicht, ist schon ")); 
+        Serial.println(currentVolume);       
       }
       else {
         Serial.print(F("Volume down to "));
@@ -425,12 +449,13 @@ void loop() {
     }
        
     // Ende der Buttons
+
   } while (!mfrc522.PICC_IsNewCardPresent());
 
   // RFID Karte wurde aufgelegt
 
   if (!mfrc522.PICC_ReadCardSerial())
-    return;
+    {return;}
 
   if (readCard(&myCard) == true) {
     if (myCard.cookie == 322417479 && myCard.folder != 0 && myCard.mode != 0) {
